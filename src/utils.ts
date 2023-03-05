@@ -2,7 +2,7 @@ import got from "got";
 import { createWriteStream, existsSync, mkdir } from "fs";
 import { pipeline } from "stream";
 import { promisify } from "util";
-import { parseIntNull, uuid } from "schel-d-utils";
+import { uuid } from "schel-d-utils";
 import { readdir, rm, cp } from "fs/promises";
 import { join, resolve } from "path";
 import AdmZip from "adm-zip";
@@ -21,25 +21,27 @@ export async function downloadZip(path: string, destination: string) {
   if ((await got.get(path)).headers["content-type"] == "application/zip") {
     const stream = got.stream(path);
 
-    // Track download progress.
-    let total = 0;
-    let length: number | null = null;
-    stream.on("response", response => {
-      length = parseIntNull(response.headers['content-length']);
-    });
-    stream.on("data", chunk => {
-      const isFirst = total == 0;
-      total += chunk.length;
-      if (length == null) { return; }
-      const perc = total / length * 100;
+    // <DOESN'T WORK ON DIGITAL OCEAN SERVERS>
+    // // Track download progress.
+    // let total = 0;
+    // let length: number | null = null;
+    // stream.on("response", response => {
+    //   length = parseIntNull(response.headers['content-length']);
+    // });
+    // stream.on("data", chunk => {
+    //   const isFirst = total == 0;
+    //   total += chunk.length;
+    //   if (length == null) { return; }
+    //   const perc = total / length * 100;
 
-      // Clear the previous line (replace with new progress value).
-      if (!isFirst) {
-        process.stdout.moveCursor(0, -1);
-        process.stdout.clearLine(1);
-      }
-      console.log(`Download ${perc.toFixed(2)}% complete...`);
-    });
+    //   // Clear the previous line (replace with new progress value).
+    //   if (!isFirst) {
+    //     process.stdout.moveCursor(0, -1);
+    //     process.stdout.clearLine(1);
+    //   }
+    //   console.log(`Download ${perc.toFixed(2)}% complete...`);
+    // });
+    // </DOESN'T WORK ON DIGITAL OCEAN SERVERS>
 
     await pipelineAsync(stream, createWriteStream(destination));
   }

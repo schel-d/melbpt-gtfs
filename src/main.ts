@@ -23,8 +23,7 @@ async function main() {
 
   const gtfsUrl = process.env.GTFS_URL;
   if (gtfsUrl == null) {
-    console.log("GTFS_URL not set.");
-    return;
+    throw new Error("GTFS_URL not set.");
   }
 
   let lastDownloadAttempt = DateTime.utc();
